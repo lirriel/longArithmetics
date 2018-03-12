@@ -129,7 +129,7 @@ void arithmetics::print(bigInt a)
 int arithmetics::to_dec(bigInt a)
 {
     int x = 0;
-    for (int i = a.size() - 1; i > 0; --i)
+    for (int i = a.size() - 1; i >= 0; --i)
         x += (a[i] * pow(2, a.size() - i - 1));
 
     return x;
@@ -296,8 +296,98 @@ arithmetics::bigInt arithmetics::rand() {
     bigInt m = to_binary(100000000);
     bigInt a = to_binary(2);
     bigInt c = to_binary(3);
-    static bigInt x = x_0; // x объявляется статической переменной
+    bigInt x = seed; // x объявляется статической переменной
     x = divisionMainAlgo(sum(karatsuba(a, x),c), m).second; // формула
-    x_0 = x;
+    seed = x;
     return x;
+}
+
+arithmetics::bigInt arithmetics::b_pow(arithmetics::bigInt a, arithmetics::bigInt n) {
+    if (compare(n, zero) == 3)
+        return a;
+
+    if (compare(n, one) == 3)
+        return a;
+
+    if (n[n.size() - 1] == 1)
+        return karatsuba(b_pow(a, subtract(n, one)), a);
+    else {
+        bigInt b = b_pow(a, divisionAlgo(n, two).first);
+        return karatsuba(b, b);
+    }
+}
+
+arithmetics::bigInt arithmetics::mod(arithmetics::bigInt A, arithmetics::bigInt B) {
+    return trim(divisionMainAlgo(A, B).second);
+}
+
+arithmetics::bigInt arithmetics::divide(arithmetics::bigInt A, arithmetics::bigInt B) {
+    return divisionMainAlgo(A, B).first;
+}
+
+void arithmetics::setSeed(arithmetics::bigInt a) {
+    seed = a;
+}
+
+void arithmetics::transform_num(arithmetics::bigInt n, arithmetics::bigInt &p, arithmetics::bigInt &q) {
+    bigInt p_res = zero;
+    while (n[n.size()-1] == 0)
+    {
+        p_res = sum(p_res, one);
+        n = divide(n, two);
+    }
+    p = p_res;
+    q = n;
+}
+
+bool arithmetics::miller_rabin(arithmetics::bigInt n, arithmetics::bigInt b) {
+    n[0] = 0;
+    int c = compare(n, two);
+    if (c == 3)
+        return true;
+    if (c == 2 || n[n.size() - 1] == 0)
+        return false;
+
+    if (compare(b, two) == 2)
+        b = two;
+    for (bigInt g; compare(g = gcd(n, b), one) != 3; b = sum(b, one))
+        if (compare(n, g) == 1)
+            return false;
+
+    bigInt n1 = subtract(n, one);
+    bigInt p, q;
+
+    // q * 2^p
+    transform_num(n1, p, q);
+    bigInt remainder = mod(b_pow(b,q),n);
+    if (compare(remainder, one) == 3 || compare(remainder, n1) == 3)
+        return true;
+
+    for (bigInt i = one; compare(i, p) == 2; i = sum(i, one)) {
+        remainder = mod(karatsuba(remainder, remainder), n);
+        if (compare(remainder, n1) == 3)
+            return true;
+    }
+
+    return false;
+}
+
+arithmetics::bigInt arithmetics::gcd(arithmetics::bigInt A, arithmetics::bigInt B) {
+    if (compare(B, zero) == 3)
+        return A;
+    return gcd(B, mod(A, B));
+}
+
+bool arithmetics::isPrime(arithmetics::bigInt A) {
+    bigInt B = sum(mod(rand(), subtract(A, two)), two);
+    return miller_rabin(A, B);
+}
+
+arithmetics::bigInt arithmetics::stringToBinary(std::string s) {
+    bigInt a;
+    for (int i = 0; i < s.size(); ++i) {
+        int k = s[i] - '0';
+        a.push_back(k);
+    }
+    return a;
 }
