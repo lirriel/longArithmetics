@@ -17,6 +17,7 @@ public:
         one = to_binary(1);
         two = to_binary(2);
     }
+
     typedef std::vector<int> bigInt;
     typedef std::pair <bigInt, bigInt> result;
 
@@ -32,9 +33,21 @@ public:
 
     bigInt timesBase(bigInt A, int k);
 
-    bigInt divide(bigInt A, bigInt B);
+    bigInt divBase(bigInt A, int k);
+
+    bigInt div(bigInt A, bigInt B);
 
     bigInt mod(bigInt A, bigInt B);
+
+    bigInt encrypt(bigInt m);
+
+    bigInt decrypt(bigInt c);
+
+    // A *= B (mod n)
+    bigInt multiply_mod(bigInt& A, bigInt B, bigInt n);
+
+    // A ^ B (mod n)
+    bigInt pow_mod(bigInt& A, bigInt B, bigInt n);
 
     bigInt karatsuba(bigInt A, bigInt B);
 
@@ -42,9 +55,11 @@ public:
 
     bigInt normalize(bigInt A);
 
-    int to_dec(bigInt a);
+    long long to_dec(bigInt a);
 
-    bigInt rand();
+    bigInt rnd();
+
+    bigInt random(int size);
 
     bigInt b_pow(bigInt a, bigInt n);
 
@@ -59,11 +74,20 @@ public:
         v.erase(v.begin());
     }
 
+    bigInt euler(bigInt p, bigInt q);
+
     void setSeed(bigInt a);
 
     bool isPrime(bigInt A);
 
     bigInt gcd(bigInt A, bigInt B);
+
+    bigInt gcd(bigInt A, bigInt B, bigInt& x, bigInt& y);
+
+    void generateKeys(bigInt p, bigInt q, bigInt e);
+
+    result openKey;
+    result closedKey;
 
 private:
     bool miller_rabin(bigInt n, bigInt b);
@@ -76,6 +100,7 @@ private:
     bigInt zero;
     bigInt one;
     bigInt two;
+
 };
 
 
