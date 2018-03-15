@@ -16,20 +16,23 @@ public:
         zero = to_binary(0);
         one = to_binary(1);
         two = to_binary(2);
+        m = b_pow(two, to_binary(1024));
+        a = to_binary(3);
+        c = to_binary(5);
     }
 
     typedef std::vector<int> bigInt;
     typedef std::pair <bigInt, bigInt> result;
 
-    bigInt stringToBinary(std::string s);
+    static bigInt stringToBinary(std::string s);
 
-    bigInt sum(bigInt A, bigInt B);
+    static bigInt sum(bigInt A, bigInt B);
 
-    bigInt trim(bigInt A);
+    static bigInt trim(bigInt A);
 
-    int compare(bigInt A, bigInt B);
+    static int compare(bigInt A, bigInt B);
 
-    bigInt subtract(bigInt A, bigInt B);
+    static bigInt subtract(bigInt A, bigInt B);
 
     bigInt timesBase(bigInt A, int k);
 
@@ -51,7 +54,7 @@ public:
 
     bigInt karatsuba(bigInt A, bigInt B);
 
-    bigInt to_binary(int x);
+    static bigInt to_binary(long long x);
 
     bigInt normalize(bigInt A);
 
@@ -59,7 +62,7 @@ public:
 
     bigInt rnd();
 
-    bigInt random(int size);
+    bigInt random(long long size);
 
     bigInt b_pow(bigInt a, bigInt n);
 
@@ -90,7 +93,7 @@ public:
     result closedKey;
 
 private:
-    bool miller_rabin(bigInt n, bigInt b);
+    bool miller_rabin(bigInt n, int k);
 
     result divisionAlgo(bigInt A, bigInt B);
 
@@ -100,6 +103,10 @@ private:
     bigInt zero;
     bigInt one;
     bigInt two;
+
+    bigInt m = to_binary(1000000000);
+    bigInt a = to_binary(200);
+    bigInt c = to_binary(300);
 
 };
 

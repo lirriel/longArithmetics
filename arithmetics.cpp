@@ -135,8 +135,8 @@ arithmetics::bigInt arithmetics::subtract(bigInt A, bigInt B)
     return A;
 }
 
-arithmetics::bigInt arithmetics::to_binary(int x) {
-    int m;
+arithmetics::bigInt arithmetics::to_binary(long long x) {
+    long long m;
     bigInt arr;
     bool f = false;
     if (x < 0) {
@@ -290,24 +290,18 @@ arithmetics::result arithmetics::divisionAlgo(bigInt A, bigInt B) {
 }
 
 arithmetics::result arithmetics::divisionMainAlgo(bigInt A, bigInt B) {
-//    std::cout<< "multtp: " << to_dec(A) << " " << to_dec(B) << std::endl;
     int m = A.size();
     int n = B.size();
     bigInt R;
-    if (m < n)
-    {
-//        std::cout<< "res: " << 0 << std::endl;
+    if (m < n) {
         return std::make_pair(to_binary(0), A);
     }
+
     if (m == n)
-        if (compare(A, B) == 2)
-        {
-//            std::cout<< "res: " << 0 << std::endl;
+        if (compare(A, B) == 2) {
             return std::make_pair(to_binary(0), A);
         }
-        else
-        {
-//            std::cout<< "res: " << 1 << std::endl;
+        else {
             return std::make_pair(to_binary(1), subtract(A, B));
         }
 
@@ -332,7 +326,7 @@ arithmetics::result arithmetics::divisionMainAlgo(bigInt A, bigInt B) {
     q = r2.first;
     R = r2.second;
     q = sum(q, karatsuba(q1, timesBase(to_binary(1), m - n - 1)));
-//    std::cout<< "res: " << to_dec(q) << std::endl;
+
     return std::make_pair(q, R);
 }
 
@@ -343,9 +337,7 @@ arithmetics::bigInt arithmetics::trim(arithmetics::bigInt A) {
 }
 
 arithmetics::bigInt arithmetics::rnd() {
-    bigInt m = to_binary(10000000);
-    bigInt a = to_binary(2);
-    bigInt c = to_binary(3);
+
     bigInt x = seed; // x объявляется статической переменной
     x = divisionMainAlgo(sum(karatsuba(a, x),c), m).second; // формула
     seed = x;
@@ -390,7 +382,9 @@ void arithmetics::transform_num(arithmetics::bigInt n, arithmetics::bigInt &p, a
     q = n;
 }
 
-bool arithmetics::miller_rabin(arithmetics::bigInt n, arithmetics::bigInt b) {
+bool arithmetics::miller_rabin(arithmetics::bigInt n, int k) {
+    bigInt frame = subtract(n, to_binary(4));
+    bigInt b = two;
     if (compare(b, two) == 2)
         b = two;
 
@@ -398,22 +392,31 @@ bool arithmetics::miller_rabin(arithmetics::bigInt n, arithmetics::bigInt b) {
         if (compare(n, g) == 1)
             return false;
 
-    bigInt n_1 = subtract(n, one);
-    bigInt p, q;
+    for (int j = 0; j < k; ++j) {
 
-    // n - 1 == q * 2^p
-    transform_num(n_1, p, q);
-    bigInt remainder = pow_mod(b, q, n);
-    if (compare(remainder, one) == 3 || compare(remainder, n_1) == 3)
-        return true;
 
-    for (bigInt i = one; compare(i, p) == 2; i = sum(i, one)) {
-        remainder = multiply_mod(remainder, remainder, n);
-        if (compare(remainder, n_1) == 3)
-            return true;
+
+        bigInt n_1 = subtract(n, one);
+        bigInt p, q;
+
+        // n - 1 == q * 2^p
+        transform_num(n_1, p, q);
+        bigInt remainder = pow_mod(b, q, n);
+        if (compare(remainder, one) == 3 || compare(remainder, n_1) == 3)
+            continue;
+
+        for (bigInt i = one; compare(i, p) == 2; i = sum(i, one)) {
+            remainder = multiply_mod(remainder, remainder, n);
+            if (compare(remainder, one) == 3)
+                return false;
+            if (compare(remainder, n_1) == 3)
+                continue;
+        }
+
+        return false;
     }
 
-    return false;
+    return true;
 }
 
 arithmetics::bigInt arithmetics::gcd(arithmetics::bigInt A, arithmetics::bigInt B) {
@@ -429,8 +432,7 @@ bool arithmetics::isPrime(arithmetics::bigInt A) {
     if (c == 2 || A[A.size() - 1] == 0)
         return false;
 
-    bigInt B = sum(mod(rnd(), subtract(A, two)), two);
-    return miller_rabin(A, B);
+    return miller_rabin(A);
 }
 
 arithmetics::bigInt arithmetics::stringToBinary(std::string s) {
@@ -446,23 +448,25 @@ void arithmetics::generateKeys(arithmetics::bigInt p, arithmetics::bigInt q, ari
     bool f = false;
     while (!f)
     {
-        p = random(256);
+        p = random(200);
         f = isPrime(p);
-//        std::cout << "p = " << to_dec(p) << " : " << f << std::endl;
+        std::cout << p.size() << " p = " << to_dec(p) << " : " << f << std::endl;
     }
-
+    printf("got p\n");
     while (!isPrime(q) || compare(p, q) == 3)
     {
-        q = random(240);
-//        std::cout << "q= " << to_dec(q) << std::endl;
+        q = random(207);
+        std::cout << q.size() << " q= " << to_dec(q) << std::endl;
     }
+    printf("got q\n");
     bigInt N = karatsuba(p, q);
     if (!isPrime(p) || !isPrime(q))
         return;
 
     bigInt eu = euler(p, q);
     while (compare(gcd(eu, e), one) != 3 && compare(eu, e) == 1)
-        e = random(120);
+        e = random(100);
+    printf("got e\n");
     result _openKey = std::make_pair(e, N);
     std::swap(openKey, _openKey);
 
@@ -578,7 +582,7 @@ arithmetics::bigInt arithmetics::decrypt(arithmetics::bigInt c) {
     return pow_mod(c, closedKey.first, closedKey.second);
 }
 
-arithmetics::bigInt arithmetics::random(int size) {
+arithmetics::bigInt arithmetics::random(long long size) {
     bigInt a;
     a.push_back(0);
     for (int i = 0; i < size; ++i) {
