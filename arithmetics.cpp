@@ -384,23 +384,24 @@ void arithmetics::transform_num(arithmetics::bigInt n, arithmetics::bigInt &p, a
 
 bool arithmetics::miller_rabin(arithmetics::bigInt n, int k) {
     bigInt frame = subtract(n, to_binary(4));
-    bigInt b = two;
-    if (compare(b, two) == 2)
+    /*if (compare(b, two) == 2)
         b = two;
 
     for (bigInt g; compare(g = gcd(n, b), one) != 3; b = sum(b, one))
         if (compare(n, g) == 1)
-            return false;
+            return false;*/
+    bigInt n_1 = subtract(n, one);
+    bigInt p, q;
+
+    // n - 1 == q * 2^p
+    transform_num(n_1, p, q);
+    printf("p = %lli, q = %lli \n", to_dec(p), to_dec(q));
 
     for (int j = 0; j < k; ++j) {
 
+        bigInt b = sum(mod(rnd(), frame), two);
+        printf("i = %i, b=%lli \n", j, to_dec(b));
 
-
-        bigInt n_1 = subtract(n, one);
-        bigInt p, q;
-
-        // n - 1 == q * 2^p
-        transform_num(n_1, p, q);
         bigInt remainder = pow_mod(b, q, n);
         if (compare(remainder, one) == 3 || compare(remainder, n_1) == 3)
             continue;
@@ -425,6 +426,25 @@ arithmetics::bigInt arithmetics::gcd(arithmetics::bigInt A, arithmetics::bigInt 
     return gcd(B, mod(A, B));
 }
 
+// Determines whether the input value is a Carmichael number.
+bool arithmetics::is_carmichael(arithmetics::bigInt n) {
+    for (bigInt b = sum(two, one); compare(b, n) == 2; b = sum(b, two)) {
+        // If "b" is relatively prime to n
+        if (compare(gcd(b, n), one) == 3)
+        {
+            // And pow(b, n-1)%n is not 1,
+            // return false.
+            printf("b=%lli \n", to_dec(b));
+            bigInt w = pow_mod(b, subtract(n, one), n);
+
+            if (compare(w, one) != 3)
+                return false;
+        }
+
+    }
+    return true;
+}
+
 bool arithmetics::isPrime(arithmetics::bigInt A) {
     int c = compare(A, two);
     if (c == 3)
@@ -432,7 +452,8 @@ bool arithmetics::isPrime(arithmetics::bigInt A) {
     if (c == 2 || A[A.size() - 1] == 0)
         return false;
 
-    return miller_rabin(A);
+    int k = 10;
+    return miller_rabin(A, k);
 }
 
 arithmetics::bigInt arithmetics::stringToBinary(std::string s) {
@@ -532,7 +553,7 @@ arithmetics::bigInt arithmetics::divBase(arithmetics::bigInt A, int k) {
     return A;
 }
 
-arithmetics::bigInt arithmetics::pow_mod(arithmetics::bigInt& A, arithmetics::bigInt B, arithmetics::bigInt n) {
+arithmetics::bigInt arithmetics::pow_mod(arithmetics::bigInt A, arithmetics::bigInt B, arithmetics::bigInt n) {
     bigInt r = one;
     while (compare(B, zero) != 3) {
         if (B[B.size() - 1] == 1) {
@@ -547,7 +568,7 @@ arithmetics::bigInt arithmetics::pow_mod(arithmetics::bigInt& A, arithmetics::bi
     return r;
 }
 
-arithmetics::bigInt arithmetics::multiply_mod(arithmetics::bigInt& A, arithmetics::bigInt B, arithmetics::bigInt n) {
+arithmetics::bigInt arithmetics::multiply_mod(arithmetics::bigInt A, arithmetics::bigInt B, arithmetics::bigInt n) {
     if (compare(A, n) != 2)
         A = mod(A, n);
 

@@ -47,10 +47,10 @@ public:
     bigInt decrypt(bigInt c);
 
     // A *= B (mod n)
-    bigInt multiply_mod(bigInt& A, bigInt B, bigInt n);
+    bigInt multiply_mod(bigInt A, bigInt B, bigInt n);
 
     // A ^ B (mod n)
-    bigInt pow_mod(bigInt& A, bigInt B, bigInt n);
+    bigInt pow_mod(bigInt A, bigInt B, bigInt n);
 
     bigInt karatsuba(bigInt A, bigInt B);
 
@@ -92,8 +92,10 @@ public:
     result openKey;
     result closedKey;
 
-private:
+//private:
     bool miller_rabin(bigInt n, int k);
+
+    bool is_carmichael(bigInt n);
 
     result divisionAlgo(bigInt A, bigInt B);
 

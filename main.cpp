@@ -1,6 +1,44 @@
 #include <iostream>
 #include <time.h>
 #include "arithmetics.h"
+int gcd(int a,int b)
+{
+    if (a < b)
+        return gcd(b, a);
+    if (a%b == 0)
+        return b;
+    return gcd(b, a%b);
+}
+
+// utility function to find pow(x, y) under
+// given modulo mod
+int power(int x, int y, int mod)
+{
+    if (y==0)
+        return 1;
+    int temp = power(x, y/2, mod) % mod;
+    temp = (temp*temp) % mod;
+    if (y%2==1)
+        temp = (temp*x) % mod;
+    return temp;
+}
+
+// This function receives an integer n and
+// finds if it's a Carmichael number
+bool isCarmichaelNumber(int n)
+{
+    for (int b=2; b<n; b++)
+    {
+        // If "b" is relatively prime to n
+        if (gcd(b, n) == 1)
+
+            // And pow(b, n-1)%n is not 1,
+            // return false.
+            if (power(b, n-1, n) != 1)
+                return false;
+    }
+    return true;
+}
 
 int main() {
     std::cout << "YOU SUCK, World!" << std::endl;
@@ -13,26 +51,27 @@ int main() {
 //    long long d1 = mulmod(a1, b1, c1);
 //    printf("d = %lli", d1);
 
-    arithmetics::bigInt a = arithmetics::to_binary(2222);
+    arithmetics::bigInt a = arithmetics::to_binary(3559);
     arithmetics::bigInt b = arithmetics::to_binary(2442);
     arithmetics::bigInt c = arithmetics::to_binary(8);
 
 //    arithmetics::bigInt d = arithmetics1.multiply_mod(a, b, c);
 //    printf("d = %lli", arithmetics1.to_dec(d));
 
-   /* bool p = arithmetics1.isPrime(a);
+   /* bool p = arithmetics1.miller_rabin(a, 10);
     if (p)
         std::cout << "\nTRUE";
     else
         std::cout << "\nFalse";*/
+
     unsigned int start_time =  clock(); //
-   arithmetics1.generateKeys(a, b, c);
+    arithmetics1.generateKeys(a, b, c);
     arithmetics::result open = arithmetics1.openKey;
     arithmetics::result closed = arithmetics1.closedKey;
     printf("done\n");
 //    std::cout<< "closed key: " << arithmetics1.to_dec(closed.first) << " " << arithmetics1.to_dec(closed.second) << std::endl;
 //    std::cout<< "open key: " << arithmetics1.to_dec(open.first) << " " << arithmetics1.to_dec(open.second) << std::endl;
-    arithmetics::bigInt c_ = arithmetics1.encrypt(arithmetics1.to_binary(458389122345));
+    arithmetics::bigInt c_ = arithmetics1.encrypt(arithmetics1.to_binary(4589122345));
     printf("encr: %lli \n", arithmetics1.to_dec(c_));
     c_ = arithmetics1.decrypt(c_);
     printf("decr: %lli \n", arithmetics1.to_dec(c_));
